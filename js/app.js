@@ -2,6 +2,7 @@
 
 // ensures page is loaded before manipulating the DOM
 document.addEventListener('DOMContentLoaded', () => {
+  $(document).ready( function() {
   // variable declarations
   let total = 0;
   const form = document.getElementsByTagName('form')[0];
@@ -10,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ccNum = document.getElementById('cc-num')
   const zipCode = document.getElementById('zip');
   const cvv = document.getElementById('cvv');
-  const firstFieldset = document.getElementsByTagName('fieldset')[0];
+  //const infoFieldset = document.getElementsByTagName('fieldset')[0];
   const paymentFieldset = document.getElementsByTagName('fieldset')[3];
   const titles = document.getElementById('title');
   const designs = document.getElementById('design');
@@ -28,16 +29,31 @@ document.addEventListener('DOMContentLoaded', () => {
 // functions
 
 // tests whether an email follows the correct email pattern
+// copied this reg expression from stack overflow
 function validateEmail(email) {
-  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(String(email).toLowerCase());
+  var reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return reg.test(String(email).toLowerCase());
+}
+
+function validateActivities() {
+    const $checkboxes = $('input[type=checkbox]:checked').length;
+    console.log($checkboxes);
+    if ($checkboxes === 0) {
+      activities.style.border = "red solid 2px";
+      event.preventDefault();
+    }
+    if ($checkboxes > 0) {
+      activities.style.border = "none";
+    }
 }
 
   // hide other input box at load
   otherTitle.style.display = "none";
 
   // hides color choices for t-shirts
-  colors.innerHTML = "Please select a T-shirt theme";
+  colors.innerHTML = `<select id="color">
+    <option value="default">Please select a T-shirt Design</option>
+    </select>`;
 
   // hide paypal and bitcoin pay options at load
   paypalDiv.style.display = "none";
@@ -72,7 +88,9 @@ function validateEmail(email) {
         <option value="dimgrey">Dim Grey (I &#9829; JS shirt only)</option>
       </select>`;
     } else {
-      colors.innerHTML = "Please select a T-shirt theme";
+      colors.innerHTML = `<select id="color">
+        <option value="default">Please select a T-shirt Design</option>
+      </select>`;
     }
   });
 
@@ -180,9 +198,11 @@ function validateEmail(email) {
 
   // form validation
   form.addEventListener("submit", function (event) {
+    // variable declarations
     let test = validateEmail(email.value);
     const activityInputs = document.querySelectorAll('.activities input');
     const paymentOptions = document.getElementById('payment');
+
     if (name.value.length === 0 || name.value.length < 2) {
       name.style.border = "red solid 2px";
       event.preventDefault();
@@ -198,13 +218,7 @@ function validateEmail(email) {
       email.style.border = "none";
     }
 
-    if (activityInputs.selectedIndex === undefined) {
-      activities.style.border = "red solid 2px";
-      event.preventDefault();
-    }
-    if (activityInputs.selectedIndex) {
-      activities.style.border = "none";
-    }
+    validateActivities();
 
     // only checks credit card fields if payment option is credit card
     if (paymentOptions.selectedIndex === 0 || paymentOptions.selectedIndex === 1) {
@@ -234,5 +248,5 @@ function validateEmail(email) {
     }
 
   });
-
+});
 });
