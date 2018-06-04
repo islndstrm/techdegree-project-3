@@ -1,7 +1,7 @@
 // The JavaScript programming below adds functionality to the HTML 'Full Stack Conf" form
 
 // ensures page is loaded before manipulating the DOM
-document.addEventListener('DOMContentLoaded', () => {
+//document.addEventListener('DOMContentLoaded', () => {
   $(document).ready( function() {
   // variable declarations
   let total = 0;
@@ -11,51 +11,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const ccNum = document.getElementById('cc-num')
   const zipCode = document.getElementById('zip');
   const cvv = document.getElementById('cvv');
-  //const infoFieldset = document.getElementsByTagName('fieldset')[0];
   const paymentFieldset = document.getElementsByTagName('fieldset')[3];
   const titles = document.getElementById('title');
   const designs = document.getElementById('design');
   const colors = document.getElementById('color');
   const activities = document.querySelector('.activities');
   const otherTitle = document.getElementById('other-title');
-  const creditDiv = document.getElementById("credit-card");
+  const creditDiv = document.getElementById('credit-card');
   const paypalDiv = creditDiv.nextElementSibling;
   const bitcoinDiv = creditDiv.nextElementSibling.nextElementSibling;
 
-  // create elements
+  // create total payment element
   const totalDiv = document.createElement('div');
   activities.appendChild(totalDiv);
 
-// functions
+  // tests whether an email follows the correct email pattern
+  // copied this reg expression from stack overflow
+  function validateEmail(email) {
+    var reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return reg.test(String(email).toLowerCase());
+  }
 
-// tests whether an email follows the correct email pattern
-// copied this reg expression from stack overflow
-function validateEmail(email) {
-  var reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return reg.test(String(email).toLowerCase());
-}
-
-function validateActivities() {
-    const $checkboxes = $('input[type=checkbox]:checked').length;
-    console.log($checkboxes);
-    if ($checkboxes === 0) {
-      activities.style.border = "red solid 2px";
-      event.preventDefault();
-    }
-    if ($checkboxes > 0) {
-      activities.style.border = "none";
-    }
-}
+  // checks to make sure at least one activity checkbox is checked
+  function validateActivities() {
+      const $checkboxes = $('input[type=checkbox]:checked').length;
+      if ($checkboxes === 0) {
+        activities.style.border = "red solid 2px";
+        event.preventDefault();
+      }
+      if ($checkboxes > 0) {
+        activities.style.border = "none";
+      }
+  }
 
   // hide other input box at load
   otherTitle.style.display = "none";
 
   // hides color choices for t-shirts
   colors.innerHTML = `<select id="color">
-    <option value="default">Please select a T-shirt Design</option>
-    </select>`;
+    <option value="default">Please select a T-shirt Design</option></select>`;
 
-  // hide paypal and bitcoin pay options at load
+  // hide payment options at load
+  creditDiv.style.display = "none";
   paypalDiv.style.display = "none";
   bitcoinDiv.style.display = "none";
 
@@ -181,13 +178,11 @@ function validateActivities() {
       creditDiv.style.display = "block";
       paypalDiv.style.display = "none";
       bitcoinDiv.style.display = "none";
-    }
-    if (paymentOptions.selectedIndex === 2) {
+    } else if (paymentOptions.selectedIndex === 2) {
       creditDiv.style.display = "none";
       paypalDiv.style.display = "block";
       bitcoinDiv.style.display = "none";
-    }
-    if (paymentOptions.selectedIndex === 3) {
+    } else if (paymentOptions.selectedIndex === 3) {
       creditDiv.style.display = "none";
       paypalDiv.style.display = "none";
       bitcoinDiv.style.display = "block";
@@ -249,4 +244,4 @@ function validateActivities() {
 
   });
 });
-});
+//});
