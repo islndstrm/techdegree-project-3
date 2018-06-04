@@ -1,8 +1,7 @@
 // The JavaScript programming below adds functionality to the HTML 'Full Stack Conf" form
 
 // ensures page is loaded before manipulating the DOM
-//document.addEventListener('DOMContentLoaded', () => {
-  $(document).ready( function() {
+$(document).ready( function() {
   // variable declarations
   let total = 0;
   const form = document.getElementsByTagName('form')[0];
@@ -25,7 +24,29 @@
   const totalDiv = document.createElement('div');
   activities.appendChild(totalDiv);
 
-  // tests whether an email follows the correct email pattern
+  // this function shows/hides elements
+  function showHide(element, value) {
+    element.style.display = value;
+  }
+
+  // marks through activity options that are at the same time as a checked option
+  function disableOption (element) {
+    element.style.textDecoration = "line-through";
+    element.style.color = "lightslategrey";
+  }
+
+  // refreshes activity options back to orignal state
+  function refreshOption (element) {
+    element.style.textDecoration = "none";
+    element.style.color = "#000";
+  }
+
+  // this function adds a red border to fields that aren't filled out correctly
+  function showError (element) {
+    element.style.border = "red solid 2px";
+  }
+
+  // this function tests whether an email follows the correct email pattern
   // copied this reg expression from stack overflow
   function validateEmail(email) {
     var reg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -36,7 +57,7 @@
   function validateActivities() {
       const $checkboxes = $('input[type=checkbox]:checked').length;
       if ($checkboxes === 0) {
-        activities.style.border = "red solid 2px";
+        showError(activities);
         event.preventDefault();
       }
       if ($checkboxes > 0) {
@@ -52,9 +73,9 @@
     <option value="default">Please select a T-shirt Design</option></select>`;
 
   // hide payment options at load
-  creditDiv.style.display = "none";
-  paypalDiv.style.display = "none";
-  bitcoinDiv.style.display = "none";
+  showHide(creditDiv, "none");
+  showHide(paypalDiv, "none");
+  showHide(bitcoinDiv, "none");
 
   // sets focus on first form element when page loads
   name.focus();
@@ -123,51 +144,43 @@
         if (activityInputs[i].name === "npm") {
           total += 100;
         }
-
+      }
         // this section of the event listener deals with workshop time slot options
         const frameworksSelected = document.querySelector('input[name="js-frameworks"]').checked;
         const expressSelected = document.querySelector('input[name="express"]').checked;
         const librariesSelected = document.querySelector('input[name="js-libs"]').checked;
         const nodeJSSelected = document.querySelector('input[name="node"]').checked;
         if (frameworksSelected) {
-          express.style.textDecoration = "line-through";
-          express.style.color = "lightslategrey";
+          disableOption(express);
           activityInputs[3].disabled = true;
         }
         if (expressSelected) {
-          frameworks.style.textDecoration = "line-through";
-          frameworks.style.color = "lightslategrey";
+          disableOption(frameworks);
           activityInputs[1].disabled = true;
         }
         if (librariesSelected) {
-          nodeJS.style.textDecoration = "line-through";
-          nodeJS.style.color = "lightslategrey";
+          disableOption(nodeJS);
           activityInputs[4].disabled = true;
         }
         if (nodeJSSelected) {
-          libraries.style.textDecoration = "line-through";
-          libraries.style.color = "lightslategrey";
+          disableOption(libraries);
           activityInputs[2].disabled = true;
         }
         if (frameworksSelected === false && expressSelected === false) {
-          frameworks.style.textDecoration = "none";
-          frameworks.style.color = "#000";
-          express.style.textDecoration = "none";
-          express.style.color = "#000";
+          refreshOption(frameworks);
+          refreshOption(express);
           activityInputs[3].disabled = false;
           activityInputs[1].disabled = false;
         }
         if (librariesSelected === false && nodeJSSelected === false) {
-          libraries.style.textDecoration = "none";
-          libraries.style.color = "#000";
-          nodeJS.style.textDecoration = "none";
-          nodeJS.style.color = "#000";
+          refreshOption(libraries);
+          refreshOption(nodeJS);
           activityInputs[2].disabled = false;
           activityInputs[4].disabled = false;
         }
       }
       totalDiv.innerHTML = `<p><strong>Total: $${total}</strong> </p>`
-    }
+    //}
   });
 
   // listens for selections in the payment info section
@@ -175,17 +188,17 @@
     const paymentOptions = document.getElementById('payment');
     paymentOptions[0].disabled = true;
     if (paymentOptions.selectedIndex === 1) {
-      creditDiv.style.display = "block";
-      paypalDiv.style.display = "none";
-      bitcoinDiv.style.display = "none";
+      showHide(creditDiv, "block");
+      showHide(paypalDiv, "none");
+      showHide(bitcoinDiv, "none");
     } else if (paymentOptions.selectedIndex === 2) {
-      creditDiv.style.display = "none";
-      paypalDiv.style.display = "block";
-      bitcoinDiv.style.display = "none";
+      showHide(creditDiv, "none");
+      showHide(paypalDiv, "block");
+      showHide(bitcoinDiv, "none");
     } else if (paymentOptions.selectedIndex === 3) {
-      creditDiv.style.display = "none";
-      paypalDiv.style.display = "none";
-      bitcoinDiv.style.display = "block";
+      showHide(creditDiv, "none");
+      showHide(paypalDiv, "none");
+      showHide(bitcoinDiv, "block");
     }
   });
 
@@ -199,26 +212,26 @@
     const paymentOptions = document.getElementById('payment');
 
     if (name.value.length === 0 || name.value.length < 2) {
-      name.style.border = "red solid 2px";
+      showError(name);
       event.preventDefault();
     }
     if (name.value.length >= 2) {
       name.style.border = "none";
     }
     if (test === false || email.value.length === 0) {
-      email.style.border = "red solid 2px";
+      showError(email);
       event.preventDefault();
     }
     if (test) {
       email.style.border = "none";
     }
-
+    // calls a function to see whether at least one activity checkbox is checked
     validateActivities();
 
     // only checks credit card fields if payment option is credit card
     if (paymentOptions.selectedIndex === 0 || paymentOptions.selectedIndex === 1) {
       if (ccNum.value.length < 13 || ccNum.value.length > 16) {
-        ccNum.style.border = "red solid 2px";
+        showError(ccNum);
         event.preventDefault();
         }
         if (ccNum.value.length >= 13 && ccNum.value.length <= 16) {
@@ -227,21 +240,20 @@
           paymentOptions.selectedIndex = 1;
         }
         if (zipCode.value.length !== 5) {
-          zipCode.style.border = "red solid 2px";
+          showError(zipCode);
           event.preventDefault();
         }
         if (zipCode.value.length === 5) {
           zipCode.style.border = "none";
         }
         if (cvv.value.length !== 3) {
-          cvv.style.border = "red solid 2px";
+          showError(cvv);
           event.preventDefault();
         }
         if (cvv.value.length === 3) {
           cvv.style.border = "none";
         }
     }
-
   });
+
 });
-//});
