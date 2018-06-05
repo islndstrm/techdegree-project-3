@@ -26,6 +26,12 @@ $(document).ready( function() {
   const totalDiv = document.createElement('div');
   activities.appendChild(totalDiv);
 
+  // create activity error element
+  const activityErrorDiv = document.createElement('div');
+  activityErrorDiv.textContent = "Please choose at least one activity.";
+  activityErrorDiv.style.color = "red";
+  activityErrorDiv.style.paddingBottom = "20px";
+
   // this function shows/hides elements
   function showHide(element, value) {
     element.style.display = value;
@@ -48,6 +54,11 @@ $(document).ready( function() {
     element.style.border = "red solid 2px";
   }
 
+  // this function removes the error border
+  function removeBorder (element) {
+    element.style.border = "none";
+  }
+
   // this function tests whether an email follows the correct email pattern
   // copied this reg expression from stack overflow
   function validateEmail(email) {
@@ -58,19 +69,27 @@ $(document).ready( function() {
   // checks to make sure at least one activity checkbox is checked and shows error if not
   function validateActivities() {
     const $checkboxes = $('input[type=checkbox]:checked').length;
+    const firstActivityLabel = document.querySelectorAll('.activities label')[0];
+    activities.insertBefore(activityErrorDiv, firstActivityLabel);
+
     if ($checkboxes === 0) {
       showError(activities);
+      showHide(activityErrorDiv, "block");
       event.preventDefault();
     }
     if ($checkboxes > 0) {
-      activities.style.border = "none";
+      removeBorder(activities);
+      return true;
     }
   }
 
   // hide other-input box at load
   showHide(otherTitle, "none");
 
-  // hides color choices for t-shirts
+  // hide activity error message at load
+  showHide(activityErrorDiv, "none");
+
+  // hides color choices for t-shirts at load
   showHide(colorDiv, "none");
 
   // hide payment options at load
@@ -214,22 +233,27 @@ $(document).ready( function() {
       showError(name);
       event.preventDefault();
     } else if (name.value.length >= 2) {
-      name.style.border = "none";
+      removeBorder(name);
     }
     if (test === false || email.value.length === 0) {
       showError(email);
       event.preventDefault();
     } else if (test) {
-      email.style.border = "none";
+      removeBorder(email);
     }
-    // calls a function to see whether at least one activity checkbox is checked
-    validateActivities();
 
+    // check to see if a payment method has been selected
     if (paymentOptions.selectedIndex === 0) {
       showError(paymentOptions);
       event.preventDefault();
     } else {
-      paymentOptions.style.border = "none";
+      removeBorder(paymentOptions);
+    }
+
+    // calls a function to see whether at least one activity checkbox is checked
+    let success = validateActivities();
+    if (success === true) {
+      showHide(activityErrorDiv, "none");
     }
 
     // only checks credit card fields if payment option is credit card
@@ -239,21 +263,21 @@ $(document).ready( function() {
         event.preventDefault();
         }
         if (ccNum.value.length >= 13 && ccNum.value.length <= 16) {
-          ccNum.style.border = "none";
+          removeBorder(ccNum);
         }
         if (zipCode.value.length !== 5) {
           showError(zipCode);
           event.preventDefault();
         }
         if (zipCode.value.length === 5) {
-          zipCode.style.border = "none";
+          removeBorder(zipCode);
         }
         if (cvv.value.length !== 3) {
           showError(cvv);
           event.preventDefault();
         }
         if (cvv.value.length === 3) {
-          cvv.style.border = "none";
+          removeBorder(cvv);
         }
     }
   });
