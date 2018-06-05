@@ -2,6 +2,7 @@
 
 // ensures page is loaded before manipulating the DOM
 $(document).ready( function() {
+
   // variable declarations
   let total = 0;
   const form = document.getElementsByTagName('form')[0];
@@ -13,6 +14,7 @@ $(document).ready( function() {
   const paymentFieldset = document.getElementsByTagName('fieldset')[3];
   const titles = document.getElementById('title');
   const designs = document.getElementById('design');
+  const colorDiv = document.getElementById('colors-js-puns');
   const colors = document.getElementById('color');
   const activities = document.querySelector('.activities');
   const otherTitle = document.getElementById('other-title');
@@ -53,24 +55,23 @@ $(document).ready( function() {
     return reg.test(String(email).toLowerCase());
   }
 
-  // checks to make sure at least one activity checkbox is checked
+  // checks to make sure at least one activity checkbox is checked and shows error if not
   function validateActivities() {
-      const $checkboxes = $('input[type=checkbox]:checked').length;
-      if ($checkboxes === 0) {
-        showError(activities);
-        event.preventDefault();
-      }
-      if ($checkboxes > 0) {
-        activities.style.border = "none";
-      }
+    const $checkboxes = $('input[type=checkbox]:checked').length;
+    if ($checkboxes === 0) {
+      showError(activities);
+      event.preventDefault();
+    }
+    if ($checkboxes > 0) {
+      activities.style.border = "none";
+    }
   }
 
-  // hide other input box at load
-  otherTitle.style.display = "none";
+  // hide other-input box at load
+  showHide(otherTitle, "none");
 
   // hides color choices for t-shirts
-  colors.innerHTML = `<select id="color">
-    <option value="default">Please select a T-shirt Design</option></select>`;
+  showHide(colorDiv, "none");
 
   // hide payment options at load
   showHide(creditDiv, "none");
@@ -84,15 +85,16 @@ $(document).ready( function() {
   // if job title is other, adds input element to add a job title
   titles.addEventListener('change', () => {
     if (titles.selectedIndex === 5) {
-      otherTitle.style.display = "block";
+      showHide(otherTitle, "block");
     } else if (titles.selectedIndex < 5) {
-      otherTitle.style.display = "none";
+      showHide(otherTitle, "none");
     }
   });
 
   // listens for changes to t-shirt designs
   // changes the available color options depending on design chosen
   designs.addEventListener('change', () => {
+    showHide(colorDiv, "inline-block");
     if (designs.selectedIndex === 1) {
       colors.innerHTML = `<select id="color">
           <option value="cornflowerblue">Cornflower Blue (JS Puns shirt only)</option>
@@ -107,11 +109,13 @@ $(document).ready( function() {
       </select>`;
     } else {
       colors.innerHTML = `<select id="color">
-        <option value="default">Please select a T-shirt Design</option>
+        <option value="default">Please select a T-shirt Theme</option>
       </select>`;
     }
   });
 
+  // listens for changes to the checkboxes and disables options that have competing times
+  // and also calculates the total cost of the chosen activities
   activities.addEventListener('click', () => {
     total = 0;
     const activityInputs = document.querySelectorAll('.activities input');
@@ -145,7 +149,7 @@ $(document).ready( function() {
           total += 100;
         }
       }
-        // this section of the event listener deals with workshop time slot options
+        // this section of the event listener manages the workshop time slot options
         const frameworksSelected = document.querySelector('input[name="js-frameworks"]').checked;
         const expressSelected = document.querySelector('input[name="express"]').checked;
         const librariesSelected = document.querySelector('input[name="js-libs"]').checked;
@@ -153,16 +157,14 @@ $(document).ready( function() {
         if (frameworksSelected) {
           disableOption(express);
           activityInputs[3].disabled = true;
-        }
-        if (expressSelected) {
+        } else if (expressSelected) {
           disableOption(frameworks);
           activityInputs[1].disabled = true;
         }
         if (librariesSelected) {
           disableOption(nodeJS);
           activityInputs[4].disabled = true;
-        }
-        if (nodeJSSelected) {
+        } else if (nodeJSSelected) {
           disableOption(libraries);
           activityInputs[2].disabled = true;
         }
@@ -180,7 +182,6 @@ $(document).ready( function() {
         }
       }
       totalDiv.innerHTML = `<p><strong>Total: $${total}</strong> </p>`
-    //}
   });
 
   // listens for selections in the payment info section
@@ -202,8 +203,6 @@ $(document).ready( function() {
     }
   });
 
-
-
   // form validation
   form.addEventListener("submit", function (event) {
     // variable declarations
@@ -214,30 +213,33 @@ $(document).ready( function() {
     if (name.value.length === 0 || name.value.length < 2) {
       showError(name);
       event.preventDefault();
-    }
-    if (name.value.length >= 2) {
+    } else if (name.value.length >= 2) {
       name.style.border = "none";
     }
     if (test === false || email.value.length === 0) {
       showError(email);
       event.preventDefault();
-    }
-    if (test) {
+    } else if (test) {
       email.style.border = "none";
     }
     // calls a function to see whether at least one activity checkbox is checked
     validateActivities();
 
+    if (paymentOptions.selectedIndex === 0) {
+      showError(paymentOptions);
+      event.preventDefault();
+    } else {
+      paymentOptions.style.border = "none";
+    }
+
     // only checks credit card fields if payment option is credit card
-    if (paymentOptions.selectedIndex === 0 || paymentOptions.selectedIndex === 1) {
+    if (paymentOptions.selectedIndex === 1) {
       if (ccNum.value.length < 13 || ccNum.value.length > 16) {
         showError(ccNum);
         event.preventDefault();
         }
         if (ccNum.value.length >= 13 && ccNum.value.length <= 16) {
           ccNum.style.border = "none";
-          // ensures payment option selected is "credit card", if credit card info is entered into the form
-          paymentOptions.selectedIndex = 1;
         }
         if (zipCode.value.length !== 5) {
           showError(zipCode);
@@ -255,5 +257,4 @@ $(document).ready( function() {
         }
     }
   });
-
 });
